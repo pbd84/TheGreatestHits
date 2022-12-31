@@ -1,30 +1,636 @@
-<!doctype html>
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8"/>
-    <title>The Greatest Hits: Surveying the Landscape of Boxing</title>
-    <link rel="icon" href="..\..\TheGreatestHits_Logo.png">
+    <title>WIP_JAB_player</title>
     <style xmlns="" type="text/css">
-            body {
-                margin: 40px auto;
-                max-width:650px;
-                line-height:1.6;
-                font-size:18px;
-                color:#444;
-                padding:0 10px
-                }
-            h1,h2,h3 {line-height:1.2}            
-        </style>
-    <body>
-      <div id="content">
-        <h1>The Greatest Hits</h1>
-        <h2>Surveying the Landscape of Boxing</h2>
-        <hr/>
-        <h3>an example (WIP!)</h3>
-        <img src="..\..\TheGreatestHits_Logo.png" alt="Logo"></img>
-        <h3>(work in progress)</h3>
-        <hr/>
-        <p>For more details visit the project's <a href="https://github.com/pbd84/TheGreatestHits">GitHub repo</a>.</p>
+              body {
+                  margin: 40px auto;
+                  max-width:650px;
+                  line-height:1.6;
+                  font-size:18px;
+                  color:#444;
+                  padding:0 10px
+                  }
+              h1,h2,h3 {line-height:1.2}
+              
+    </style>
+    <script xmlns="">
+        var triggerKeysOn;
+        var triggerMoveSlider;
+        
+        var currentVideoTime = -1; // -1: no video selected
+        var currentVideoDuration;
+        var currentRound = 0; //default! =&gt; position in array
+        var currentVideoRounds = [];
+        var currentRoundBegin;
+        var currentRoundEnd;
+        
+        var barWidth = 640;
+        
+    </script>
+  </head>
+  <body>
+    <div xmlns="" id="header">
+      <p>This is a prototype for visualizing annotation data and linking it to the source video.</p>
+    </div>
+    <br/>
+    <div id="content">
+    <div id="jabplayer" style="width: 640px; border: 0.1px solid darkgrey;">
+      <div id="chooseVideo" style="width: 640px; text-align: center;">
+        <button onclick="changeVideo('PLWYnTFz9PE');" style="float: left; width: 100%;">open video player (AliFrazier_19710308)</button>
       </div>
-</body>
+      <div id="videoplayer" class="jabplayer-hideable" style="display: none;">
+        <button id="playeranchor" style="width: 640px; overflow: hidden; font-size: 1;">(ImaWorkaround)</button>
+        <br/>
+        <div id="player"><!--don't close, plz--></div>
+        <div id="controls" style="width: 640px; text-align: center;">
+          <button onclick="playerJumpBackwardBy(10000);" style="float: left; width: 25%;">&lt;&lt;&lt;</button>
+          <button id="pausebutton" onclick="pauseVideo();" style="float: left; width: 25%;">pause</button>
+          <button onclick="playVideo()" style="float: left; width: 25%;">play</button>
+          <button onclick="playerJumpForwardBy(10000);" style="float: left; width: 25%;">&gt;&gt;&gt;</button>
+        </div>
+      </div>
+      <br/>
+      <div id="videoslider" class="jabplayer-hideable" style="display: none;">
+        <input id="videosliderpointer" type="range" min="0" max="180000" step="1" value="0" style="width: 640px;" onchange="videosliderChanged(this.value);" onmousedown="videosliderClicked(this.value);" onmouseup="videosliderReleased(this.value);" ontouchstart="videosliderClicked(this.value);" ontouchend="videosliderReleased(this.value);"/>
+      </div>
+        <div id="fights" class="jabplayer-hideable" style="display: none;">
+          <div xmlns="" class="video v-PLWYnTFz9PE" style="display: none; width: 640px; height: 60px; overflow: auto;">
+            <div class="round r-PLWYnTFz9PE" style="background-color: black; width: 640px; height: 30px; overflow: hidden; position: relative;" data-begin="2906" data-end="182800">
+              <div title="Muhammad Ali misses Joe Frazier with a left straight to the head (5.833-6.139 ms)" onclick="playerSeekToFor(8.739,306)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.1701001701001701%; height: 28px; margin-left: 3.2424650071708894%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Muhammad Ali misses Joe Frazier with a left straight to the head (6.158-6.494 ms)" onclick="playerSeekToFor(9.064,336)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.18677665736489266%; height: 28px; margin-left: 3.423126952538717%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Muhammad Ali misses Joe Frazier with a left straight to the head (6.932-7.207 ms)" onclick="playerSeekToFor(9.838,275)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.15286779992662344%; height: 28px; margin-left: 3.853380323968559%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Muhammad Ali misses Joe Frazier with a left straight to the head (7.235-7.352 ms)" onclick="playerSeekToFor(10.141,117)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.06503830033241798%; height: 28px; margin-left: 4.021812845342257%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a right straight to the head (10.306-10.47 ms)" onclick="playerSeekToFor(13.212,164)" class="punch p-right p-head p-miss p-straight " style="background-color: red; width: 0.09116479704714998%; height: 28px; margin-left: 5.728929258341023%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left hook to the body (10.495-10.743 ms)" onclick="playerSeekToFor(13.401,248)" class="punch p-left p-body p-miss p-hook " style="background-color: red; width: 0.13785896138837314%; height: 28px; margin-left: 5.833991128108775%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the body (10.728-11.169 ms)" onclick="playerSeekToFor(13.634,441)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.24514436279142163%; height: 28px; margin-left: 5.963511845864787%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a right hook to the head (11.15-11.539 ms)" onclick="playerSeekToFor(14.056,389)" class="punch p-right p-head p-hit p-hook " style="background-color: red; width: 0.21623845153256918%; height: 28px; margin-left: 6.198094433388551%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left uppercut to the head (11.582-11.75 ms)" onclick="playerSeekToFor(14.488,168)" class="punch p-left p-head p-miss p-uppercut " style="background-color: red; width: 0.09338832868244633%; height: 28px; margin-left: 6.438235850000556%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the body (11.853-12.271 ms)" onclick="playerSeekToFor(14.759,418)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.23235905588846764%; height: 28px; margin-left: 6.588880118291883%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the body (15.271-15.698 ms)" onclick="playerSeekToFor(18.177,427)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.2373620020678844%; height: 28px; margin-left: 8.488887900652607%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left hook to the head (23.024-23.634 ms)" onclick="playerSeekToFor(25.93,610)" class="punch p-left p-head p-hit p-hook " style="background-color: red; width: 0.339088574382692%; height: 28px; margin-left: 12.79864809276574%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier [result missing] Muhammad Ali with a left hook to the head (24.25-24.66 ms)" onclick="playerSeekToFor(27.156,410)" class="punch p-left p-head p-interrupted p-hook " style="background-color: blue; width: 0.22791199261787498%; height: 28px; margin-left: 13.480160538984068%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier knocks down Muhammad Ali with a left hook to the head (25.015-25.6 ms)" onclick="playerSeekToFor(27.921,585)" class="punch p-left p-head p-knockdown p-hook " style="background-color: blue; width: 0.3251915016620899%; height: 28px; margin-left: 13.905410964234493%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali [result missing] Joe Frazier with a right hook to the head (25.121-25.387 ms)" onclick="playerSeekToFor(28.027,266)" class="punch p-right p-head p-interrupted p-hook " style="background-color: red; width: 0.14786485374720668%; height: 28px; margin-left: 13.964334552569847%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier misses Muhammad Ali with a left hook to the head (39.853-40.418 ms)" onclick="playerSeekToFor(42.759,565)" class="punch p-left p-head p-miss p-hook " style="background-color: blue; width: 0.3140738434856082%; height: 28px; margin-left: 22.153601565366273%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the head (40.646-41.082 ms)" onclick="playerSeekToFor(43.552,436)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.24236494824730118%; height: 28px; margin-left: 22.594416712063772%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a right hook to the body (41.786-42.274 ms)" onclick="playerSeekToFor(44.692,488)" class="punch p-right p-body p-hit p-hook " style="background-color: blue; width: 0.27127085950615365%; height: 28px; margin-left: 23.228123228123227%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the head (43.286-43.614 ms)" onclick="playerSeekToFor(46.192,328)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.18232959409429997%; height: 28px; margin-left: 24.061947591359356%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a right hook to the head (50.747-51.116 ms)" onclick="playerSeekToFor(53.653,369)" class="punch p-right p-head p-hit p-hook " style="background-color: red; width: 0.20512079335608746%; height: 28px; margin-left: 28.209389974095856%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the head (50.935-51.382 ms)" onclick="playerSeekToFor(53.841,447)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.24847966024436613%; height: 28px; margin-left: 28.313895960954785%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali [result missing] Joe Frazier with a left hook to the head (51.124-51.57 ms)" onclick="playerSeekToFor(54.03,446)" class="punch p-left p-head p-score p-hook " style="background-color: red; width: 0.24792377733554205%; height: 28px; margin-left: 28.418957830722537%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a right hook to the head (51.491-51.884 ms)" onclick="playerSeekToFor(54.397,393)" class="punch p-right p-head p-hit p-hook " style="background-color: blue; width: 0.21846198316786553%; height: 28px; margin-left: 28.622966858260977%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the body (52.742-53.053 ms)" onclick="playerSeekToFor(55.648,311)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.17287958464429054%; height: 28px; margin-left: 29.318376377199908%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier [result missing] Muhammad Ali with a left hook to the head (54.401-54.919 ms)" onclick="playerSeekToFor(57.307,518)" class="punch p-left p-head p-noScore p-hook " style="background-color: blue; width: 0.2879473467708762%; height: 28px; margin-left: 30.240586122939064%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the body (55.315-56.02 ms)" onclick="playerSeekToFor(58.221,705)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.39189745072098015%; height: 28px; margin-left: 30.74866310160428%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a right hook to the body (56.264-56.921 ms)" onclick="playerSeekToFor(59.17,657)" class="punch p-right p-body p-hit p-hook " style="background-color: blue; width: 0.365215071097424%; height: 28px; margin-left: 31.276195982078335%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the body (66.442-66.885 ms)" onclick="playerSeekToFor(69.348,443)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.24625612860906979%; height: 28px; margin-left: 36.93397222808988%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (67.67-68.181 ms)" onclick="playerSeekToFor(70.576,511)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.2840561664091076%; height: 28px; margin-left: 37.61659644012585%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (69.537-70.129 ms)" onclick="playerSeekToFor(72.443,592)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.3290826820238585%; height: 28px; margin-left: 38.65442983090042%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a right hook to the head (69.994-70.631 ms)" onclick="playerSeekToFor(72.9,637)" class="punch p-right p-head p-hit p-hook " style="background-color: blue; width: 0.3540974129209423%; height: 28px; margin-left: 38.90846832023303%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a right hook to the body (71.153-71.677 ms)" onclick="playerSeekToFor(74.059,524)" class="punch p-right p-body p-hit p-hook " style="background-color: blue; width: 0.2912826442238207%; height: 28px; margin-left: 39.55273661156014%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the body (71.691-72.095 ms)" onclick="playerSeekToFor(74.597,404)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.22457669516493045%; height: 28px; margin-left: 39.8518016165075%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (72.471-73.063 ms)" onclick="playerSeekToFor(75.377,592)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.3290826820238585%; height: 28px; margin-left: 40.285390285390285%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (74.694-75.119 ms)" onclick="playerSeekToFor(77.6,425)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.23625023625023625%; height: 28px; margin-left: 41.52111799170623%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali [result missing] Joe Frazier with a left straight to the head (76.03-76.537 ms)" onclick="playerSeekToFor(78.936,507)" class="punch p-left p-head p-resultmissing p-straight " style="background-color: red; width: 0.28183263477381126%; height: 28px; margin-left: 42.2637775578952%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (76.578-77.033 ms)" onclick="playerSeekToFor(79.484,455)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.2529267235149588%; height: 28px; margin-left: 42.568401391930806%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the body (76.645-77.305 ms)" onclick="playerSeekToFor(79.551,660)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.3668827198238963%; height: 28px; margin-left: 42.60564554682202%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (77.861-78.163 ms)" onclick="playerSeekToFor(80.767,302)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.16787663846487375%; height: 28px; margin-left: 43.2815991639521%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a right hook to the head (78.168-78.503 ms)" onclick="playerSeekToFor(81.074,335)" class="punch p-right p-head p-miss p-hook " style="background-color: red; width: 0.18622077445606858%; height: 28px; margin-left: 43.4522552169611%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (86.019-86.487 ms)" onclick="playerSeekToFor(88.925,468)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.2601532013296719%; height: 28px; margin-left: 47.816491934138995%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (86.478-86.949 ms)" onclick="playerSeekToFor(89.384,471)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.2618208500561442%; height: 28px; margin-left: 48.07164218928925%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (92.889-93.149 ms)" onclick="playerSeekToFor(95.795,260)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.14452955629426217%; height: 28px; margin-left: 51.635407517760456%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (93.007-93.805 ms)" onclick="playerSeekToFor(95.913,798)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.44359456124162006%; height: 28px; margin-left: 51.7010017010017%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (101.916-102.429 ms)" onclick="playerSeekToFor(104.822,513)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.28516793222675574%; height: 28px; margin-left: 56.65336253571548%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (102.495-103.443 ms)" onclick="playerSeekToFor(105.401,948)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.5269769975652329%; height: 28px; margin-left: 56.97521873992462%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (103.456-104.274 ms)" onclick="playerSeekToFor(106.362,818)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.45471221941810175%; height: 28px; margin-left: 57.50942221530457%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a right hook to the head (104.29-104.587 ms)" onclick="playerSeekToFor(107.196,297)" class="punch p-right p-head p-hit p-hook " style="background-color: red; width: 0.16509722392075332%; height: 28px; margin-left: 57.97302856126385%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (104.353-105.257 ms)" onclick="playerSeekToFor(107.259,904)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.5025181495769732%; height: 28px; margin-left: 58.00804918451977%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left hook to the head (104.589-105.071 ms)" onclick="playerSeekToFor(107.495,482)" class="punch p-left p-head p-hit p-hook " style="background-color: red; width: 0.2679355620532091%; height: 28px; margin-left: 58.13923755100226%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (111.207-111.714 ms)" onclick="playerSeekToFor(114.113,507)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.28183263477381126%; height: 28px; margin-left: 61.81807064160005%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (111.526-112.161 ms)" onclick="playerSeekToFor(114.432,635)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.35298564710329416%; height: 28px; margin-left: 61.99539728951493%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (121.747-122.323 ms)" onclick="playerSeekToFor(124.653,576)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.3201885554826731%; height: 28px; margin-left: 67.6770765006059%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (122.393-122.739 ms)" onclick="playerSeekToFor(125.299,346)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.1923354864531335%; height: 28px; margin-left: 68.03617685970627%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a right straight to the head (122.742-122.916 ms)" onclick="playerSeekToFor(125.648,174)" class="punch p-right p-head p-miss p-straight " style="background-color: red; width: 0.09672362613539084%; height: 28px; margin-left: 68.23017999488587%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left straight to the head (128.174-128.42 ms)" onclick="playerSeekToFor(131.08,246)" class="punch p-left p-head p-hit p-straight " style="background-color: red; width: 0.13674719557072498%; height: 28px; margin-left: 71.2497359556183%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a right uppercut to the head (128.42-128.729 ms)" onclick="playerSeekToFor(131.326,309)" class="punch p-right p-head p-hit p-uppercut " style="background-color: red; width: 0.17176781882664235%; height: 28px; margin-left: 71.38648315118904%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left hook to the head (128.729-129.121 ms)" onclick="playerSeekToFor(131.635,392)" class="punch p-left p-head p-miss p-hook " style="background-color: red; width: 0.21790610025904145%; height: 28px; margin-left: 71.55825097001568%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier misses Muhammad Ali with a left hook to the head (129.118-129.608 ms)" onclick="playerSeekToFor(132.024,490)" class="punch p-left p-head p-miss p-hook " style="background-color: blue; width: 0.2723826253238018%; height: 28px; margin-left: 71.77448942154824%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left hook to the head (129.341-129.628 ms)" onclick="playerSeekToFor(132.247,287)" class="punch p-left p-head p-hit p-hook " style="background-color: red; width: 0.15953839483251248%; height: 28px; margin-left: 71.89845131021602%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a right straight to the head (129.628-129.966 ms)" onclick="playerSeekToFor(132.534,338)" class="punch p-right p-head p-miss p-straight " style="background-color: red; width: 0.18788842318254084%; height: 28px; margin-left: 72.05798970504853%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left uppercut to the head (129.966-130.334 ms)" onclick="playerSeekToFor(132.872,368)" class="punch p-left p-head p-hit p-uppercut " style="background-color: red; width: 0.20456491044726338%; height: 28px; margin-left: 72.24587812823107%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left hook to the head (131.321-131.709 ms)" onclick="playerSeekToFor(134.227,388)" class="punch p-left p-head p-miss p-hook " style="background-color: red; width: 0.2156825686237451%; height: 28px; margin-left: 72.9990994696877%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left straight to the head (131.842-132.225 ms)" onclick="playerSeekToFor(134.748,383)" class="punch p-left p-head p-hit p-straight " style="background-color: red; width: 0.21290315407962468%; height: 28px; margin-left: 73.28871446518505%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (132.225-132.509 ms)" onclick="playerSeekToFor(135.131,284)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.1578707461060402%; height: 28px; margin-left: 73.50161761926468%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a right hook to the head (132.356-132.772 ms)" onclick="playerSeekToFor(135.262,416)" class="punch p-right p-head p-miss p-hook " style="background-color: red; width: 0.23124729007081948%; height: 28px; margin-left: 73.57443828032063%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali [result missing] Joe Frazier with a left uppercut to the head (132.717-133.186 ms)" onclick="playerSeekToFor(135.623,469)" class="punch p-left p-head p-resultmissing p-uppercut " style="background-color: red; width: 0.260709084238496%; height: 28px; margin-left: 73.77511201040613%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left hook to the head (133.398-133.659 ms)" onclick="playerSeekToFor(136.304,261)" class="punch p-left p-head p-miss p-hook " style="background-color: red; width: 0.14508543920308625%; height: 28px; margin-left: 74.15366827131533%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left hook to the head (133.676-134.129 ms)" onclick="playerSeekToFor(136.582,453)" class="punch p-left p-head p-hit p-hook " style="background-color: red; width: 0.25181495769731066%; height: 28px; margin-left: 74.30820371996843%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a right hook to the head (134.149-134.447 ms)" onclick="playerSeekToFor(137.055,298)" class="punch p-right p-head p-miss p-hook " style="background-color: red; width: 0.16565310682957743%; height: 28px; margin-left: 74.57113633584221%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left hook to the head (134.468-134.733 ms)" onclick="playerSeekToFor(137.374,265)" class="punch p-left p-head p-miss p-hook " style="background-color: red; width: 0.1473089708383826%; height: 28px; margin-left: 74.74846298375711%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the head (134.49-135.148 ms)" onclick="playerSeekToFor(137.396,658)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.36577095400624815%; height: 28px; margin-left: 74.76069240775124%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (135.476-135.837 ms)" onclick="playerSeekToFor(138.382,361)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.2006737300854948%; height: 28px; margin-left: 75.30879295585179%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Muhammad Ali misses Joe Frazier with a right straight to the head (135.838-136.134 ms)" onclick="playerSeekToFor(138.744,296)" class="punch p-right p-head p-miss p-straight " style="background-color: red; width: 0.16454134101192924%; height: 28px; margin-left: 75.5100225688461%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left hook to the head (136.389-136.742 ms)" onclick="playerSeekToFor(139.295,353)" class="punch p-left p-head p-miss p-hook " style="background-color: red; width: 0.1962266668149021%; height: 28px; margin-left: 75.81631405160817%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the body (136.889-137.323 ms)" onclick="playerSeekToFor(139.795,434)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.24125318242965302%; height: 28px; margin-left: 76.09425550602022%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Joe Frazier hits Muhammad Ali with a left hook to the body (137.323-137.702 ms)" onclick="playerSeekToFor(140.229,379)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.21067962244432833%; height: 28px; margin-left: 76.33550868844986%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left straight to the head (144.045-144.382 ms)" onclick="playerSeekToFor(146.951,337)" class="punch p-left p-head p-hit p-straight " style="background-color: red; width: 0.18733254027371674%; height: 28px; margin-left: 80.07215360156536%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left straight to the head (144.467-144.833 ms)" onclick="playerSeekToFor(147.373,366)" class="punch p-left p-head p-hit p-straight " style="background-color: red; width: 0.20345314462961522%; height: 28px; margin-left: 80.30673618908914%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali hits Joe Frazier with a left straight to the head (145.044-145.559 ms)" onclick="playerSeekToFor(147.95,515)" class="punch p-left p-head p-hit p-straight " style="background-color: red; width: 0.28627969804440395%; height: 28px; margin-left: 80.62748062748062%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a left straight to the head (145.853-146.203 ms)" onclick="playerSeekToFor(148.759,350)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.19455901808842985%; height: 28px; margin-left: 81.07718990071932%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div><div title="Muhammad Ali misses Joe Frazier with a right straight to the head (146.203-146.667 ms)" onclick="playerSeekToFor(149.109,464)" class="punch p-right p-head p-miss p-straight " style="background-color: red; width: 0.2579296696943756%; height: 28px; margin-left: 81.27174891880775%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the head (163.872-164.409 ms)" onclick="playerSeekToFor(166.778,537)" class="punch p-left p-head p-hit p-hook " style="background-color: blue; width: 0.2985091220385338%; height: 28px; margin-left: 91.0936440348205%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a right hook to the body (164.581-165.096 ms)" onclick="playerSeekToFor(167.487,515)" class="punch p-right p-body p-hit p-hook " style="background-color: blue; width: 0.28627969804440395%; height: 28px; margin-left: 91.48776501717678%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a left hook to the body (165.126-165.677 ms)" onclick="playerSeekToFor(168.032,551)" class="punch p-left p-body p-hit p-hook " style="background-color: blue; width: 0.306291482762071%; height: 28px; margin-left: 91.79072120248591%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a right hook to the body (166.81-167.337 ms)" onclick="playerSeekToFor(169.716,527)" class="punch p-right p-body p-hit p-hook " style="background-color: blue; width: 0.29295029295029296%; height: 28px; margin-left: 92.72682802094567%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier hits Muhammad Ali with a right hook to the body (167.943-168.5 ms)" onclick="playerSeekToFor(170.849,557)" class="punch p-right p-body p-hit p-hook " style="background-color: blue; width: 0.3096267802150155%; height: 28px; margin-left: 93.35664335664336%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Joe Frazier [result missing] Muhammad Ali with a left hook to the head (168.529-169.118 ms)" onclick="playerSeekToFor(171.435,589)" class="punch p-left p-head p-resultmissing p-hook " style="background-color: blue; width: 0.32741503329738625%; height: 28px; margin-left: 93.68239074121428%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Muhammad Ali misses Joe Frazier with a left straight to the head (178.127-178.618 ms)" onclick="playerSeekToFor(181.033,491)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.2729385082326259%; height: 28px; margin-left: 99.01775490010785%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Muhammad Ali misses Joe Frazier with a left straight to the head (178.628-179.382 ms)" onclick="playerSeekToFor(181.534,754)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.4191357132533603%; height: 28px; margin-left: 99.2962522374287%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+              <div title="Muhammad Ali misses Joe Frazier with a left straight to the head (179.423-179.933 ms)" onclick="playerSeekToFor(182.329,510)" class="punch p-left p-head p-miss p-straight " style="background-color: red; width: 0.2835002835002835%; height: 28px; margin-left: 99.73817914994386%; float: left; border: 1px solid black; position: absolute; cursor: pointer; font-size: x-small; opacity: 0.9;"> </div>
+            </div>
+          </div>
+        </div>
+        <div id="zoomslider" class="jabplayer-hideable" style="display: none; width: 640px;">
+          <span>zoom (default=100%, max=1000%):</span>
+          <input type="range" min="100" max="1000" step="1" value="100" id="input-zoomslider" onchange="zoomsliderChanged(this.value);"/>
+        </div>
+        <div id="annotationcategories" class="jabplayer-hideable" style="display: none; width: 640px; position: relative;">
+          <button onclick="highlightPunches('none', 'white');" style="width: 100%; position: absolute;">clear highlighting</button>
+          <br/>
+          <span> click to highlight annotations: </span>
+          <br/>
+          <button onclick="highlightPunches('p-hook', 'white');" style="width: 33.333333333333333333%;">hook</button><button onclick="highlightPunches('p-straight', 'white');" style="width: 33.333333333333333333%;">straight</button><button onclick="highlightPunches('p-uppercut', 'white');" style="width: 33.333333333333333333%;">uppercut</button>
+          <br/>
+          <button onclick="highlightPunches('p-left', 'white');" style="width: 50%">left</button><button onclick="highlightPunches('p-right', 'white');" style="width: 50%;">right</button>
+          <br/>
+          <button onclick="highlightPunches('p-body', 'white');" style="width: 50%;">body</button><button onclick="highlightPunches('p-head', 'white');" style="width: 50%;">head</button><br/><button onclick="highlightPunches('p-miss', 'white');" style="width: 25%;">miss</button><button onclick="highlightPunches('p-hit', 'white');" style="width: 25%;">hit</button><button onclick="highlightPunches('p-knockdown', 'white');" style="width: 25%;">knockdown</button><button onclick="highlightPunches('p-knockout', 'white');" style="width: 25%;">knockout</button>
+        </div>
+      </div>
+    </div>
+
+    <script xmlns="" id="videoplayerscript">
+    // 2. This code loads the IFrame Player API code asynchronously.
+    var tag = document.createElement('script');
+    
+    //var playerContainer = document.getElementById('player');
+    
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementById('videoplayerscript');
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    
+    // 3. This function creates an  (and YouTube player)
+    //    after the API code downloads.
+    var player;
+    
+    var playerFocused = true;
+    
+    var myInterval;
+    
+    //var varForSeconds = 6000;
+    var varForSeconds = 179894;
+    
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            height: '360',
+            width: '640',
+            videoId: 'PLWYnTFz9PE',
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+    
+    // 4. The API will call this function when the video player is ready.
+    function onPlayerReady(event) {
+        console.log('onPlayerReady');
+        event.target.playVideo();
+        
+        //startSlider();
+        
+        //event.target.seekTo(27);
+        //event.target.playVideoAt(27);
+        //playerContainer.focus();
+    }
+    
+    // 5. The API calls this function when the player's state changes.
+    //    The function indicates that when playing a video (state=1),
+    //    the player should play for six seconds and then stop.
+    var done = false;
+    
+    function onPlayerStateChange(event) {
+        console.log('onPlayerStateChange');
+        
+        if (event.data == YT.PlayerState.PLAYING) {
+            if(!done){
+                //setTimeout(stopVideo, 6000);
+                //console.log(varForSeconds);
+                setTimeout(pauseVideo, varForSeconds);
+                done = true;
+            }
+        }
+        
+        /*
+        console.log('test!');
+        startStopSlider();
+        console.log('/test!');
+        */
+        
+        
+        document.activeElement.blur();
+        document.getElementById('playeranchor').focus();
+        console.log(document.activeElement);
+    }
+    
+    function stopVideo() {
+        console.log('stopVideo');
+        
+        //clearInterval(myInterval);
+        
+        player.stopVideo();
+        
+        //playerContainer.focus();
+        playerFocused = true;
+        
+        stopSlider();
+    }
+    
+    function pauseVideo(){
+        console.log('pauseVideo');
+        stopSlider();
+        
+        player.pauseVideo();
+        
+        
+    }
+    
+    function playVideo() {
+        console.log('playVideo');
+        player.playVideo();
+        
+        //playerContainer.focus();
+        playerFocused = true;
+        
+        myInterval = setInterval(moveVideoslider, 100);
+        
+        //startStopSlider();
+        startSlider();
+    }
+    
+    function loadVideo(videoId) {
+        console.log('loadVideo');
+        player.loadVideoById(videoId);
+        
+        //playerContainer.focus();
+        playerFocused = true;
+    }
+    
+    function startStopSlider(){
+        if (playerGetPlayerState() == 1) {
+            myInterval = setInterval(moveVideoslider, 100);
+            console.log('setInterval');
+        }
+        else {
+            clearInterval(myInterval);
+            console.log('clearInterval');
+        }
+    }
+    
+    function startSlider(){
+        console.log('startSlider');
+        if (myInterval) {
+            clearInterval(myInterval);
+        }
+        
+        /*
+        if (playerGetPlayerState() == 1){
+            myInterval = setInterval(moveVideoslider, 100);
+        }
+        */
+        
+        myInterval = setInterval(moveVideoslider, 100);
+        
+    }
+    
+    function stopSlider(){
+        console.log('stopSlider');
+        clearInterval(myInterval);
+    }
+    
+    //Quelle: https://stackoverflow.com/questions/9133079/links-to-specific-times-in-youtube-iframe-embed (29.03.2019)
+    //generic seekTo function taking a player element and seconds as parameters    
+    function playerSeekTo(seconds) {
+        console.log('playerSeekTo');
+        player.seekTo(seconds);
+        event.target.playVideo();
+        
+        //playerContainer.focus();
+    }
+    
+    function playerSeekToFor(toSeconds, forSeconds) {
+    console.log('onPlayerReady');
+    //alert(forSeconds);
+    player.seekTo(toSeconds);
+    varForSeconds = forSeconds;
+    //event.target.playVideo();
+    playVideo();
+    }
+    
+    function playerJumpTo(milliseconds){
+        console.log('playerJumpTo');
+        // player.seekTo(milliseconds / 1000);
+        player.seekTo(milliseconds / 1000);
+    }
+    
+    function playerJumpForwardBy(milliseconds){
+        console.log('playerJumpForwardBy');
+        var playerTime;
+        playerTime = player.getCurrentTime() * 1000;
+        playerTime = (playerTime + milliseconds) / 1000;
+        player.seekTo(playerTime);
+        
+        //playerContainer.focus();
+    }
+    
+    function playerJumpBackwardBy(milliseconds){
+        console.log('playerJumpBackwardBy');
+        var playerTime;
+        playerTime = player.getCurrentTime() * 1000;
+        playerTime = (playerTime - milliseconds) / 1000;
+        player.seekTo(playerTime);
+        
+        //playerContainer.focus();
+    }
+    
+    function playerGetPlayerState(){
+        console.log('playerGetPlayerState');
+        return player.getPlayerState();
+    }
+
+    
+    // ##### event listener for video control via keys #####
+    // cf. https://sites.google.com/a/umich.edu/u-m-google-170816/accessibility/google-keyboard-shortcuts---youtube
+    
+    document.addEventListener('keydown', function(event) {
+    
+        // don't react, if player shouldn't be focused!
+        if(playerFocused){
+            console.log('key pressed: ' + event.keyCode);
+        
+           // k
+           if(event.keyCode== 75){
+               if(player.getPlayerState() == 1){
+                   pauseVideo();
+               }
+               else if(player.getPlayerState() == 2){
+                   playVideo();
+               }
+           }
+           
+           // space:
+           if(event.keyCode== 32){
+              if(player.getPlayerState() == 1){
+                   pauseVideo();
+              }
+              else if(player.getPlayerState() == 2){
+                   playVideo();
+              }
+           }
+           
+           // arrow left: 
+           if(event.keyCode == 37) {
+               playerJumpBackwardBy(5000);
+           }
+           
+           // j: 
+           if(event.keyCode == 74) {
+               playerJumpBackwardBy(10000);
+           }
+           
+           // arrow right: 
+           if(event.keyCode == 39) {
+               playerJumpForwardBy(5000);
+           }
+           
+           // l: 
+           if(event.keyCode == 76) {
+               playerJumpForwardBy(10000);
+           }
+           
+           // 1(one): 49
+           if(event.keyCode == 49) {
+               //
+           }
+           
+           // 2: 50
+           
+           // 3: 51
+           
+           // 4: 52
+           
+           // 5: 53
+           
+           // 6: 54
+           
+           // 7: 55
+           
+           // 8: 56
+           
+           // 9: 57
+           
+           // 0: 48
+           
+           // escape: 27 
+           
+           // home: 36
+           
+           // end: 35
+           
+           // up arrow: 38
+           
+           // down arrow: 40
+           
+           // shift + &gt;: 16 + ???
+           
+           // shift + .: 16 + 190 ???
+           
+           // shift + &lt;: 16 + ???
+           
+           // shift + ,: 16 + 188 ???
+           
+           // . (period): 190
+           if(event.keyCode == 190) {
+               playerJumpForwardBy(50);
+           }
+           
+           // , (comma): 188
+           if(event.keyCode == 188) {
+                playerJumpBackwardBy(50);
+           }
+           
+           // m: 77
+           if(event.keyCode == 77) {
+               if(player.isMuted()){
+                   player.unMute();
+               }
+               else {
+                   player.mute();
+               }
+           }
+           
+           // c: 67
+           if(event.keyCode == 67) {
+           
+           }
+           
+           // b: 66
+           if(event.keyCode == 66) {
+           
+           }
+           
+           // shift + p:  
+           
+           // shift + n:
+           
+        }
+
+    });
+    
+        
+    </script>
+    <script xmlns="">
+        
+        //var sliders = [];
+        
+        var currentVideo = 'none';
+        
+        function highlightPunches(myClass, myColor){
+            
+            var varPropositions = document.getElementsByClassName('punch');
+            for (var i = 0; i < varPropositions.length; i++){
+                varPropositions[i].style.borderColor = 'black';
+                varPropositions[i].style.zIndex = '0';
+            }
+            
+            varPropositions = document.getElementsByClassName(myClass);
+            
+            for (var i = 0; i < varPropositions.length; i++){
+                varPropositions[i].style.borderColor = myColor;
+                varPropositions[i].style.zIndex = '1';
+            }
+        }
+        
+        function changeColor(myClass){
+        
+            var varPropositions = document.getElementsByClassName('punch');
+            for (var i = 0; i < varPropositions.length; i++){
+                varPropositions[i].style.backgroundColor = '#54A2DD';
+                varPropositions[i].style.zIndex = '0';
+            }
+            
+            varPropositions = document.getElementsByClassName(myClass);
+            
+            for (var i = 0; i < varPropositions.length; i++){
+                varPropositions[i].style.backgroundColor = 'red';
+                varPropositions[i].style.zIndex = '1';
+            }
+        
+        }
+        
+        function changeBorderColor(myClass, myColor){
+        
+        var varPropositions = document.getElementsByClassName('punch');
+        for (var i = 0; i < varPropositions.length; i++){
+        varPropositions[i].style.borderColor = 'black';
+        varPropositions[i].style.zIndex = '0';
+        }
+        
+        varPropositions = document.getElementsByClassName(myClass);
+        
+        for (var i = 0; i < varPropositions.length; i++){
+        varPropositions[i].style.borderColor = myColor;
+        varPropositions[i].style.zIndex = '1';
+        }
+        
+        }
+        
+        function changeVideo(newVideo){
+        console.log('changeVideo');
+        
+        var myRoundClasses = '.round.r-' + newVideo;
+        //console.log(myRoundClasses);
+        var myRound = document.querySelectorAll(myRoundClasses)[currentRound];
+        //console.log(myRound);
+        currentRoundBegin = myRound.getAttribute('data-begin');
+        currentRoundEnd = myRound.getAttribute('data-end');
+        //console.log('currentRoundBegin=' + currentRoundBegin);
+        
+        document.getElementById('videosliderpointer').max = currentRoundEnd - currentRoundBegin;
+        
+        //var vidpl = document.getElementById('videoplayer').display
+        
+        //document.getElementById('videoplayer').style.display = 'block';
+        var varHideable = document.getElementsByClassName('jabplayer-hideable');
+        for (var i = 0; i < varHideable.length; i++){
+            varHideable[i].style.display = 'block';
+        }
+        
+        currentVideo = newVideo;
+        
+        var myClass = '';
+        myClass = 'v-' + newVideo;
+        console.log(myClass);
+        
+        var varVideos = document.getElementsByClassName('video');
+        for (var i = 0; i < varVideos.length; i++){
+        //console.log(varVideos[i]);
+        varVideos[i].style.display = 'none';
+        }
+        
+        varVideos = document.getElementsByClassName(myClass);
+        for (var i = 0; i < varVideos.length; i++){
+        varVideos[i].style.display = 'block';
+        }
+        loadVideo(newVideo);
+
+        }
+        
+        var videosliderCounter = 0;
+        
+        function moveVideoslider(){
+            var myTime = (player.getCurrentTime() * 1000) - currentRoundBegin;
+            console.log('myTime=' + myTime);
+            document.getElementById('videosliderpointer').value = myTime;
+            
+            //console.log(myTime);
+            if(myTime >= parseFloat((currentRoundEnd - currentRoundBegin))){
+                console.log('stopSlider: ' + myTime);
+                stopSlider();
+            }
+            
+            
+            if(videosliderCounter >= 10){
+                videosliderCounter = 0;
+                console.log(player.getPlayerState());
+                if(player.getPlayerState() != 1){
+                    stopSlider();
+                }
+                
+            } else {
+                videosliderCounter++;
+            }
+            
+            
+        }
+        
+       
+    </script>
+    <script xmlns="">
+        var zoomsliderOldVal = 100;
+        
+        function zoomsliderChanged(val){
+            //console.log(val);
+            //console.log('currentVideo: ' + currentVideo);
+            
+            var myAnnotations;
+            
+            var myWidthVal = 0;
+            var myWidthStr = '';
+            
+            var zoomsliderNewValFactor;
+            
+            zoomsliderNewValFactor = val / zoomsliderOldVal;
+            zoomsliderOldVal = val;
+            
+            myAnnotations = document.getElementsByClassName('round');
+            for (var i = 0; i < myAnnotations.length; i++){
+                myWidthStr = myAnnotations[i].style.width;
+                myWidthStr = myWidthStr.replace('px', '');
+                myWidthVal = parseFloat(myWidthStr);
+                myWidthVal = myWidthVal * zoomsliderNewValFactor;
+                myWidthStr = myWidthVal + 'px';
+                
+                myAnnotations[i].style.width = myWidthStr;
+            }
+            
+        }
+        
+        function videosliderChanged(val){
+            console.log('videosliderChanged');
+            playerJumpTo(val + (currentRoundBegin / 1000));
+            
+            startSlider();
+        }
+        
+        function videosliderClicked(val){
+            console.log('videosliderClicked');
+            stopSlider();
+            playerJumpTo(val + (currentRoundBegin / 1000));
+            
+            startSlider();
+        }
+        
+        function videosliderReleased(val){
+            console.log('videosliederReleased');
+            playerJumpTo(val + (currentRoundBegin / 1000));
+            startSlider();
+        }
+    </script>
+    <br/><br/><br/>
+    <hr/>
+    <div xmlns="" id="instructions">
+      <h3>Instructions:</h3>
+      <ul>
+        <li>Please click the button above to open the video player and display the
+            annotations.</li>
+        <li>Click an annotation to play the corresponding part of the video.</li>
+        <li>Hover over the annotations for details.</li>
+        <li>Some annotations are associated to certain keywords or references. You can highlight them by clicking the buttons below the video.</li>
+        <li>So far only annotated punches can be viewed. Although the data model supports types like: evasions, movement, stance, and more.</li>
+        <li>There's an event listener trying to mimic <a href="https://support.google.com/youtube/answer/7631406?hl=en">YouTube's keyboard shortcuts</a> when there's no focus on the iframe (or else the YT API handles that itself). Not all shortcuts will work right now though.</li>
+        <li>I haven't tested this with every browser, but it should run in the main browsers.</li>
+        <li>Beware: The slider tends to hiccup. If this happens, try to use pause/play or click an annotation.</li>
+      </ul>
+    </div>
+    <hr/>
+    <div xmlns="" id="impressum">
+      <p>This is a project by <a href="https://github.com/pbd84">me</a>. For any kind of
+      feedback or questions please get in touch via mail: nils.geissler (myCaptcha: What's
+      supposed to be here?) uni-koeln.de</p>
+    </div>
+  </body>
 </html>
